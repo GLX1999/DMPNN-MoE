@@ -66,7 +66,7 @@ The model is trained using **PyTorch** and **PyTorch Lightning**, with optimizat
 
 ## Results
 
-The **DMPNN-MoE** model achieves an **MSE of 0.1815 ± 0.0256**, **R² of 0.8634 ± 0.0165**, and **MAE of 0.2557 ± 0.0096** in 10-fold cross-validation. Importantly, the model was validated on **ethylene sulfate (DTD)**, a solute not included in the training set, and achieved an **R² of 0.874**, **MAE of 0.0736**, and **RMSE of 0.0923**. These results highlight the model's exceptional generalization ability and its ability to predict solubility for unseen solutes, surpassing the performance of traditional methods like **COSMO-RS** and **COSMO-SAC**, which struggle with out-of-training-set solutes such as DTD.
+The **DMPNN-MoE** model achieves an **MSE of 0.1815 ± 0.0256**, **R² of 0.8634 ± 0.0165**, and **MAE of 0.2557 ± 0.0096** in 10-fold cross-validation. When validated on **ethylene sulfate (DTD)**—a solute not included in the training set—it attained an **R² of 0.8740**, an **MAE of 0.0736****, and an **RMSE of 0.0923.** These results underscore the model’s exceptional generalization ability and its robustness in predicting solubility for entirely unseen solutes.
 
 ## Example Usage
 
