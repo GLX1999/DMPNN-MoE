@@ -5,25 +5,42 @@ from torch.utils.data import DataLoader
 from pytorch_lightning import Trainer, LightningModule
 from data import MoleculeDataset, collate_fn
 from dmpnn import dmpnn
+import torch
+
 
 class InferenceModule(LightningModule):
     def __init__(self, model):
         super().__init__()
         self.model = model
+
     def forward(self, batched_solute_graph, batched_solvent_graph, extra_features):
         return self.model(batched_solute_graph, batched_solvent_graph, extra_features)
+
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         batched_solute_graph, batched_solvent_graph, extra_features = batch
         outputs = self(batched_solute_graph, batched_solvent_graph, extra_features)
         outputs = outputs.squeeze(-1)
         return outputs
+
+
 def load_model(checkpoint_path, model_cls):
+
+    checkpoint = torch.load(checkpoint_path, map_location='cpu')
     trained_model = InferenceModule.load_from_checkpoint(checkpoint_path, model=model_cls)
-    return trained_model
+
+
+    scaler_mean = checkpoint['scaler_mean']
+    scaler_std = checkpoint['scaler_std']
+
+    return trained_model, scaler_mean, scaler_std
+
+
 def main():
     input_csv = r'.csv'
     save_path = r'.csv'
     checkpoint_path = r'.ckpt'
+
+
     model = dmpnn(node_feat_dim=111,
                   edge_feat_dim=13,
                   edge_output_dim=400,
@@ -37,7 +54,11 @@ def main():
                   num_experts=4,
                   moe_hid_dim=400,
                   )
+
+
     pre_df = pd.read_csv(input_csv)
+
+
     solute_descriptor_series = pre_df['solute_smiles'].apply(
         lambda x: calculate_descriptors(x, solute_descriptor_functions))
     solvent_descriptor_series = pre_df['solvent_smiles'].apply(
@@ -45,18 +66,34 @@ def main():
     df_solute_descriptors = pd.DataFrame(solute_descriptor_series.tolist()).add_prefix('solute_')
     df_solvent_descriptors = pd.DataFrame(solvent_descriptor_series.tolist()).add_prefix('solvent_')
 
-    extra_features_df = pd.concat([pre_df[['temperature']], df_solute_descriptors, df_solvent_descriptors], axis=1)    # 1  + 15  + 14
 
+    extra_features_df = pd.concat([pre_df[['temperature']], df_solute_descriptors, df_solvent_descriptors], axis=1)
     extra_features = extra_features_df.values.astype(np.float32)
+
+
     solute_smiles_list = pre_df['solute_smiles'].tolist()
     solvent_smiles_list = pre_df['solvent_smiles'].tolist()
-    trained_model = load_model(checkpoint_path, model)
+
+
+    trained_model, mean_, scale_ = load_model(checkpoint_path, model)
+    trained_model.eval()
+
+
+    extra_features = (extra_features - mean_) / scale_
+
+
     predict_dataset = MoleculeDataset(solute_smiles_list, solvent_smiles_list, extra_features)
     predict_dataloader = DataLoader(predict_dataset, batch_size=100, collate_fn=collate_fn,
                                     num_workers=11, persistent_workers=True)
+
+
     trainer = Trainer(num_sanity_val_steps=0, accelerator='gpu', devices=1)
     predictions = trainer.predict(trained_model, dataloaders=predict_dataloader)
+
+
     prediction_list = [item.squeeze().tolist() for batch in predictions for item in batch]
+
+
     pre_df['pre_logS'] = prediction_list
     pre_df.to_csv(save_path, index=False)
 
