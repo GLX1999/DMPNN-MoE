@@ -1,4 +1,4 @@
-# DMPNN-MoE: Temperature-Aware Small Molecule Solubility Prediction via Directed Message Passing Neural Networks with Mixture-of-Experts
+# Temperature-Dependent Small-Molecule Solubility Prediction Using MoE-Enhanced Directed Message Passing Neural Networks
 
 ## Introduction
 
@@ -10,25 +10,32 @@ The proposed model has been evaluated using a comprehensive dataset containing o
 
 To run the code, ensure the following libraries are installed:
 
-- **torch**: 2.2.1+cu118
-- **sklearn**: 1.5.2
-- **dgl**: 2.2.1+cu118
+- **dgl**: 2.4+cu121
+- **torch**: 2.4+cu121
+- **pytorch-lightning**: 2.4
 - **rdkit**: 2022.09.5
-- **pytorch-lightning**: 2.2.5
-- **numpy**: 1.24.4
-- **pandas**: 1.5.3
+- **numpy**
+- **pandas**
 
 You can install these dependencies via pip:
 
+**Windows**
 ```
-pip install torch==2.2.1+cu118
-pip install scikit-learn==1.5.2
-pip install dgl==2.2.1+cu118
+pip install  dgl -f https://data.dgl.ai/wheels/cu121/repo.html
+pip install pytorch-lightning==2.4
 pip install rdkit==2022.09.5
-pip install pytorch-lightning==2.2.5
-pip install numpy==1.24.4
-pip install pandas==1.5.3
+pip install pandas
+pip install numpy
 ```
+**Linux**
+```
+pip install  dgl -f https://data.dgl.ai/wheels/torch-2.4/cu121/repo.html
+pip install pytorch-lightning==2.4
+pip install rdkit==2022.09.5
+pip install pandas
+pip install numpy
+```
+
 
 ## Dataset
 
@@ -66,7 +73,7 @@ The model is trained using **PyTorch** and **PyTorch Lightning**, with optimizat
 
 ## Results
 
-The **DMPNN-MoE** model achieves an **MSE of 0.1815 ± 0.0256**, **R² of 0.8634 ± 0.0165**, and **MAE of 0.2557 ± 0.0096** in 10-fold cross-validation. When validated on **ethylene sulfate (DTD)**—a solute not included in the training set—it attained an **R² of 0.8740**, an **MAE of 0.0736**, and an **RMSE of 0.0923.** These results underscore the model’s exceptional generalization ability and its robustness in predicting solubility for entirely unseen solutes.
+The **DMPNN-MoE** model achieves an **MSE of 0.181 ± 0.026**, ***R*² of 0.863 ± 0.016**, and **MAE of 0.256 ± 0.010** in 10-fold cross-validation. The model retains high accuracy for rare solvents (**MAE = 0.341** on 2,380 low-sample data) and generalizes to 12 unseen solutes across 1,221 data points (**MAE = 0.413**), indicating robust generalization with some limitations. This work establishes a robust, interpretable model for temperature-dependent solubility prediction, with broad applications in pharmaceutical discovery and chemical engineering.
 
 ## Example Usage
 
@@ -75,7 +82,7 @@ The **DMPNN-MoE** model achieves an **MSE of 0.1815 ± 0.0256**, **R² of 0.8634
 To use `prediction.py` for solubility prediction, follow these steps:
 
 1. Prepare a CSV file with three columns: `solute_smiles`, `solvent_smiles`, and `temperature`.
-2. Input the file path for the data, the model paths (for 10-folds), and set the output file path.
+2. Input the file path for the data, the model paths, and set the output file path.
 3. The script will load the model, perform predictions, and save the results in the output CSV.
 
 ```
@@ -90,4 +97,4 @@ This repository offers a state-of-the-art tool for predicting solubility using m
 
 ## References
 
-1. Guo, L., Zhao, Y., Liu, Q., Meng, Q. (2025). "DMPNN-MoE: Temperature-Aware Small Molecule Solubility Prediction via Directed Message Passing Neural Networks with Mixture-of-Experts". 
+1. Guo, L., Zhao, Y., Liu, Q., Zhang, L., Du, J., Meng, Q. (2025). "Temperature-Dependent Small-Molecule Solubility Prediction Using MoE-Enhanced Directed Message Passing Neural Networks". 
