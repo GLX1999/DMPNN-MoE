@@ -77,6 +77,11 @@ The **DMPNN-MoE** model achieves an **MSE of 0.181 ± 0.026**, ***R*² of 0.863 
 
 ## Example Usage
 
+### Online Demo
+
+Try the web app for solubility prediction here:  
+https://solubility-prop.molpheus.com/
+
 ### Model Inference
 
 To use `prediction.py` for solubility prediction, follow these steps:
